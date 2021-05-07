@@ -26,6 +26,15 @@ class API {
 
   async getInitialPosts() {
     // code goes here
+    try {
+      const response = await fetch(this.url, this.options);
+      const postData = await response.json();
+      console.log('Retrieved Posts from API!');
+      this._posts = postData.data;
+      return this.posts
+    } catch (err) {
+      console.log(err);
+    }
     
   }
 
@@ -43,6 +52,7 @@ class API {
     return new Promise((resolve, reject) => {
 
       // code goes here
+      this._posts.push(post)
 
       console.log('Post was created!');
       setTimeout(() => {
@@ -61,7 +71,9 @@ class API {
       setTimeout(() => {
 
         // code goes here
-
+          if (deletedPost) {
+            resolve(deletedPost);
+          } else { reject("Could not delete posts")}
       }, 500);
     });
   }
@@ -73,7 +85,7 @@ const start = async () => {
   await api.getInitialPosts();
 
   // code goes here
-
+  api.getPosts().then(posts =>{ console.log(posts)})
 };
 
 const addANewPost = () => {
@@ -83,13 +95,16 @@ const addANewPost = () => {
   if (firstInput && lastInput && postInput) {
     
     // code goes here
-
-  }
+    api.addPost({owner: {firstName: firstInput,lastName: lastInput,},text: postInput});
+    api.getPosts().then(posts =>{ console.log(posts)})
+  
 };
-
+}
 const deleteAPost = () => {
   
   // code goes here
+  api.deletePost().then(posts =>{console.log(posts)});
+  api.getPosts().then(posts =>{ console.log(posts)})
 
 };
 
