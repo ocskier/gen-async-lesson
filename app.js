@@ -26,7 +26,14 @@ class API {
 
   async getInitialPosts() {
     // code goes here
-    
+    try {
+      const response = await fetch(this.url, this.options);
+      const jsonData = await response.json();
+      console.log('Retrieved posts from API');
+      this._posts = jsonData.data;
+    } catch (error) {
+      console.log('Error' + error);
+    }
   }
 
   getPosts() {
@@ -42,7 +49,7 @@ class API {
   addPost(post) {
     return new Promise((resolve, reject) => {
 
-      // code goes here
+      this._posts.push(post);
 
       console.log('Post was created!');
       setTimeout(() => {
@@ -59,8 +66,9 @@ class API {
       const deletedPost = this._posts.pop();
       console.log('Last Post was deleted!');
       setTimeout(() => {
-
-        // code goes here
+        deletedPost
+          ? resolve(deletedPost)
+          : reject(new Error(`Error: something went wrong while deleting!`));
 
       }, 500);
     });
@@ -70,28 +78,62 @@ class API {
 const api = new API();
 
 const start = async () => {
-  await api.getInitialPosts();
-
-  // code goes here
-
+  try {
+    await api.getInitialPosts();
+    let posts = await api.getPosts();
+    console.log('----------------------');
+    posts.forEach(post => {
+      printPostRow(post);
+      console.log('----------------------');
+    });
+    console.log('----------------------');
+  } catch (error) {
+    console.log('Error while getting posts' + error);
+  }
 };
+//await here api.addPost() need to add async in the function name
+const addANewPost = async () => {
+  try {
+    const firstInput = prompt('What is your first name?').trim();
+    const lastInput = prompt('What is your last name?').trim();
+    const postInput = prompt('What would you like to post?').trim();
+    if (firstInput && lastInput && postInput) {
 
-const addANewPost = () => {
-  const firstInput = prompt('What is your first name?').trim();
-  const lastInput = prompt('What is your last name?').trim();
-  const postInput = prompt('What would you like to post?').trim();
-  if (firstInput && lastInput && postInput) {
-    
-    // code goes here
-
+      let newPost = {
+        owner: {
+          firstName: firstInput,
+          lastName: lastInput,
+        },
+        text: postInput,
+      };
+      api.addPost(newPost);
+      //this is correct idea. re-print after the promise is fulfilled using await keyword
+      let posts = await api.getPosts();
+      console.log('----------------------');
+      posts.forEach(post => {
+        printPostRow(post);
+        console.log('----------------------');
+      });
+      console.log('----------------------');
+    }
+  } catch (error) {
+    console.log('Error while getting posts' + error);
   }
 };
 
-const deleteAPost = () => {
-  
-  // code goes here
+const deleteAPost = async () => {
 
+  // code goes here
+  const deletedPost = await api.deletePost();
+  let posts = await api.getPosts();
+  console.log('----------------------');
+  posts.forEach(post => {
+    printPostRow(post);
+    console.log('----------------------');
+  });
+  console.log('----------------------');
 };
+
 
 // This is a utility function to print individual posts to the console
 const printPostRow = (post) => {
